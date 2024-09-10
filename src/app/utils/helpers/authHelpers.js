@@ -1,30 +1,16 @@
 import * as jose from "jose";
 
-const JWT_SECRET = "SECRET";  // Use a secure key in production
-const JWT_AUTH_EXP = "1y";  // Adjust the expiration as needed
-
-function encodedSecret() {
-    return new TextEncoder().encode(JWT_SECRET); 
-}
+const JWT_SECRET = process.env.JWT_SECRET || "SECRET";  // Secure in production
+const JWT_EXPIRATION = "1y";
 
 export async function signJWT(payload) {
-    const token = await new jose.SignJWT(payload)
-        .setProtectedHeader({ alg: "HS256", typ: "JWT" })
-        .setIssuedAt()
-        .setExpirationTime(JWT_AUTH_EXP)
-        .sign(encodedSecret());
-
-    console.log("Generated token:", token);
-    return token;
+  return await new jose.SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setExpirationTime(JWT_EXPIRATION)
+    .sign(new TextEncoder().encode(JWT_SECRET));
 }
 
 export async function verifyJWT(token) {
-    try {
-        const { payload } = await jose.jwtVerify(token, encodedSecret());
-        console.log("Verified payload:", payload);
-        return payload;
-    } catch (error) {
-        console.error("Token verification failed:", error);
-        throw error;
-    }
+  const { payload } = await jose.jwtVerify(token, new TextEncoder().encode(JWT_SECRET));
+  return payload;
 }

@@ -1,31 +1,26 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { verifyJWT } from "@/app/utils/helpers/authHelpers";
+import { verifyJWT } from "@/utils/authHelpers";
 
 const prisma = new PrismaClient();
 
 export async function POST(req) {
+  const token = req.headers.get("Authorization")?.replace("Bearer ", "").trim();
+
+  if (!token) {
+    return NextResponse.json({ message: "No token provided" }, { status: 401 });
+  }
+
   try {
-    const token = req.headers.get("Authorization")?.replace("Bearer ", "").trim();
-    
-    if (!token) {
-      return NextResponse.json({ message: "No token provided" }, { status: 401 });
-    }
-
     const decoded = await verifyJWT(token);
-
-    let body;
-    try {
-      body = await req.json();
-    } catch (error) {
-      return NextResponse.json({ message: "Invalid JSON" }, { status: 400 });
-    }
+    const { name, description, quantity, category } = await req.json();
 
     const newItem = await prisma.item.create({
       data: {
-        name: body.name,
-        quantity: body.quantity,
-        category: body.category,
+        name,
+        description,
+        quantity,
+        category,
         userId: decoded.userId,
       },
     });
