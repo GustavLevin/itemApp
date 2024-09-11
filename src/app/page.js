@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";  // Import router for redirection
 
 export default function HomePage() {
   const [formData, setFormData] = useState({ email: "", password: "", name: "" });
   const [message, setMessage] = useState("");
+  const router = useRouter();  // Initialize router
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -18,6 +20,7 @@ export default function HomePage() {
       if (response.ok) {
         localStorage.setItem("token", data.token);  // Store JWT in localStorage
         setMessage("Registration successful!");
+        router.push("/items");  // Redirect to /items after successful registration
       } else {
         setMessage(data.message || "Registration failed.");
       }
@@ -39,6 +42,7 @@ export default function HomePage() {
       if (response.ok) {
         localStorage.setItem("token", data.token);  // Store JWT in localStorage
         setMessage("Login successful!");
+        router.push("/items");  // Redirect to /items after successful login
       } else {
         setMessage(data.message || "Login failed.");
       }
@@ -52,6 +56,7 @@ export default function HomePage() {
     <div className="container">
       <h2>Inventory Management App</h2>
       <div className="form-container">
+        {/* Registration Form */}
         <div className="form-section">
           <h3>Register</h3>
           <form onSubmit={handleRegister}>
@@ -61,6 +66,8 @@ export default function HomePage() {
             <button type="submit" className="button">Register</button>
           </form>
         </div>
+
+        {/* Login Form */}
         <div className="form-section">
           <h3>Login</h3>
           <form onSubmit={handleLogin}>
@@ -71,19 +78,21 @@ export default function HomePage() {
         </div>
       </div>
       {message && <p className="message">{message}</p>}
+
+      {/* Styles for light/dark mode and form layout */}
       <style jsx>{`
         .container {
           max-width: 400px;
           margin: 50px auto;
           padding: 20px;
           border-radius: 10px;
-          background-color: var(--background-color, #f7f7f7);  /* Background for light/dark mode */
+          background-color: var(--background-color, #f7f7f7);
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
           text-align: center;
-          color: var(--text-color, #000);  /* Text color for light/dark mode */
+          color: var(--text-color, #000);
         }
         h2, h3 {
-          color: var(--text-color, #000);  /* Text color for headers */
+          color: var(--text-color, #000);
         }
         .form-container {
           display: flex;
@@ -91,7 +100,7 @@ export default function HomePage() {
           gap: 20px;
         }
         .form-section {
-          background-color: var(--section-background, #fff);  /* Background for sections */
+          background-color: var(--section-background, #fff);
           padding: 20px;
           border-radius: 8px;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -105,11 +114,11 @@ export default function HomePage() {
           padding: 10px;
           border: 1px solid #ddd;
           border-radius: 5px;
-          background-color: var(--input-background, #fff);  /* Input background */
-          color: var(--input-text-color, #000);  /* Input text color */
+          background-color: var(--input-background, #fff);
+          color: var(--input-text-color, #000);
         }
         input::placeholder {
-          color: var(--input-placeholder-color, #888);  /* Placeholder color */
+          color: var(--input-placeholder-color, #888);
         }
         .button {
           padding: 10px;
@@ -124,7 +133,7 @@ export default function HomePage() {
         }
         .message {
           margin-top: 20px;
-          color: var(--message-color, #0070f3);  /* Message color */
+          color: var(--message-color, #0070f3);
         }
         @media (prefers-color-scheme: dark) {
           :root {
