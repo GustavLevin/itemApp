@@ -1,33 +1,65 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { verifyJWT } from "@/utils/authHelpers";
+import { verifyJWT } from "@/app/utils/authHelpers"; // Ensure the path is correct
 
 const prisma = new PrismaClient();
 
-export async function POST(req) {
-  const token = req.headers.get("Authorization")?.replace("Bearer ", "").trim();
+export const GET = async (req) => {
+  const url = new URL(req.url);
+  const search = url.searchParams.get("search");
+  let items = [];
+  if (search) {
+    items = await prisma.item.findMany({
+      where: {
+        category: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+    });
+  } else {
+    items = await prisma.item.findMany();
+  }
 
-  if (!token) {
-    return NextResponse.json({ message: "No token provided" }, { status: 401 });
+  return NextResponse.json(items);
+};
+
+export const POST = async (req) => {
+  let body;
+  try {
+    body = await req.json();
+  } catch (error) {
+    return NextResponse.json(
+      {
+        message: "A valid JSON object has to be sent",
+      },
+      {
+        status: 400,
+      }
+    );
   }
 
   try {
-    const decoded = await verifyJWT(token);
-    const { name, description, quantity, category } = await req.json();
-
     const newItem = await prisma.item.create({
       data: {
-        name,
-        description,
-        quantity,
-        category,
-        userId: decoded.userId,
+        name: body.name,
+        description: body.description,
+        quantity: body.quantity,
+        category: body.category,
       },
     });
-
-    return NextResponse.json(newItem);
+    return NextResponse.json(newItem, {
+      status: 201,
+    });
   } catch (error) {
-    console.error("Error in POST request:", error);
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+    console.log("ERROR:::", error.message);
+    return NextResponse.json(
+      {
+        message: "Valid item data has to be sent",
+      },
+      {
+        status: 400,
+      }
+    );
   }
-}
+};

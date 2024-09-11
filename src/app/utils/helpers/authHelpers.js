@@ -1,16 +1,28 @@
 import * as jose from "jose";
 
-const JWT_SECRET = process.env.JWT_SECRET || "SECRET";  // Secure in production
+const JWT_SECRET = process.env.JWT_SECRET || "SECRET";  // Ensure consistency
 const JWT_EXPIRATION = "1y";
+
+function encodedSecret() {
+  return new TextEncoder().encode(JWT_SECRET); 
+}
 
 export async function signJWT(payload) {
   return await new jose.SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
+    .setProtectedHeader({ alg: "HS256", typ: "JWT" })  // Correct headers
+    .setIssuedAt()
     .setExpirationTime(JWT_EXPIRATION)
-    .sign(new TextEncoder().encode(JWT_SECRET));
+    .sign(encodedSecret());
 }
 
 export async function verifyJWT(token) {
-  const { payload } = await jose.jwtVerify(token, new TextEncoder().encode(JWT_SECRET));
-  return payload;
+  try {
+    const { payload } = await jose.jwtVerify(token, encodedSecret(), {
+      algorithms: ["HS256"],  // Match algorithm
+    });
+    return payload;
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    throw error;
+  }
 }

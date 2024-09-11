@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { signJWT } from "@/app/utils/helpers/authHelpers";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
+import bcrypt from "bcrypt";  // For password comparison
 
 const prisma = new PrismaClient();
 
@@ -23,6 +22,7 @@ export async function POST(req) {
   }
 
   try {
+    // Check if the user exists
     const user = await prisma.user.findUnique({
       where: { email: body.email },
     });
@@ -34,6 +34,7 @@ export async function POST(req) {
       );
     }
 
+    // Verify the password
     const isPasswordValid = await bcrypt.compare(body.password, user.password);
 
     if (!isPasswordValid) {
@@ -43,11 +44,9 @@ export async function POST(req) {
       );
     }
 
-    const token = await signJWT({ userId: user.id });
-
+    // Respond with user information only, no token creation
     return NextResponse.json({
-      user: { id: user.id, email: user.email, name: user.name },
-      token,
+      user: { id: user.id, email: user.email, name: user.name },  // Hide password in response
     });
   } catch (error) {
     console.error(error);
