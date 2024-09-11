@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { verifyJWT } from "@/app/utils/authHelpers"; // Ensure the path is correct
+import { verifyJWT } from "@/app/utils/helpers/authHelpers"; // Ensure the path is correct
 
 const prisma = new PrismaClient();
 
@@ -25,17 +25,34 @@ export const GET = async (req) => {
 };
 
 export const POST = async (req) => {
+  // Extract the JWT from the Authorization header
+  const token = req.headers.get("Authorization")?.replace("Bearer ", "").trim();
+  
+  if (!token) {
+    return NextResponse.json(
+      { message: "No token provided" },
+      { status: 401 }
+    );
+  }
+
+  // Verify the JWT
+  try {
+    await verifyJWT(token);
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Invalid token" },
+      { status: 401 }
+    );
+  }
+
+  // Continue with item creation if token is valid
   let body;
   try {
     body = await req.json();
   } catch (error) {
     return NextResponse.json(
-      {
-        message: "A valid JSON object has to be sent",
-      },
-      {
-        status: 400,
-      }
+      { message: "A valid JSON object has to be sent" },
+      { status: 400 }
     );
   }
 
@@ -48,18 +65,12 @@ export const POST = async (req) => {
         category: body.category,
       },
     });
-    return NextResponse.json(newItem, {
-      status: 201,
-    });
+    return NextResponse.json(newItem, { status: 201 });
   } catch (error) {
     console.log("ERROR:::", error.message);
     return NextResponse.json(
-      {
-        message: "Valid item data has to be sent",
-      },
-      {
-        status: 400,
-      }
+      { message: "Valid item data has to be sent" },
+      { status: 400 }
     );
   }
 };

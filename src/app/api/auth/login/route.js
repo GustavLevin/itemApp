@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";  // For password comparison
+import bcrypt from "bcrypt";
+import { signJWT } from "@/app/utils/helpers/authHelpers";  // Import the JWT signing function
 
 const prisma = new PrismaClient();
 
@@ -44,9 +45,13 @@ export async function POST(req) {
       );
     }
 
-    // Respond with user information only, no token creation
+    // Generate JWT token for the user
+    const token = await signJWT({ userId: user.id });
+
+    // Respond with user information and token
     return NextResponse.json({
-      user: { id: user.id, email: user.email, name: user.name },  // Hide password in response
+      user: { id: user.id, email: user.email, name: user.name },
+      token,
     });
   } catch (error) {
     console.error(error);

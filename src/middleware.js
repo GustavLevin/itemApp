@@ -1,25 +1,39 @@
 import { NextResponse } from "next/server";
-import { verifyJWT } from "@/app/utils/helpers/authHelpers"; // Ensure the path is correct
+import { verifyJWT } from "@/app/utils/helpers/authHelpers";
+
+const unsafeMethods = ["POST", "PUT", "DELETE"];
 
 export async function middleware(req) {
-  const bearer = req.headers.get("Authorization") || "";
-  const token = bearer.replace(/^Bearer\s+/i, "").trim();
+  console.log("Middleware is running", req.method);
 
-  if (!token) {
-    return NextResponse.json({ error: "No token provided" }, { status: 401 });
+  if (unsafeMethods.includes(req.method)) {
+    console.log("VERIFY");
+    let jwtPayload;
+    try {
+      const bearer = req.headers.get("Authorization") || "";
+      console.log("Full Authorization Header:", bearer); 
+      const token = bearer.split(" ")?.[1];  // Extract the token correctly
+      console.log("Extracted Token:", token);
+      if (!token) {
+        throw new Error("No token submitted");
+      }
+
+      jwtPayload = await verifyJWT(token);  // Verify the token
+      const headers = new Headers(req.headers);
+      headers.set("userId", JSON.stringify(jwtPayload.userId));  // Add userId to headers
+      return NextResponse.next({ headers: headers });  // Continue if valid
+    } catch (error) {
+      console.error("Token verification failed:", error);  // Log the error for debugging
+      return NextResponse.json(
+        { error: "Unauthorized request" },
+        { status: 401 }
+      );
+    }
   }
 
-  try {
-    const jwtPayload = await verifyJWT(token); // Verify JWT
-    const headers = new Headers(req.headers);
-    headers.set("userId", JSON.stringify(jwtPayload.userId));
-    return NextResponse.next({ headers: headers }); // Continue with the request if valid
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    return NextResponse.json({ error: "Unauthorized request" }, { status: 401 });
-  }
+  return NextResponse.next();  // Continue for safe methods
 }
 
 export const config = {
-  matcher: ["/api/items/:path*", "/api/users/:path*"], // Ensure paths are correctly set
+  matcher: ["/api/items/:path*"],  // Update matcher to include all paths under /api/items
 };
