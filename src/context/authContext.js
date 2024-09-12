@@ -1,12 +1,14 @@
+"use client";  // Add this line at the top
+
 import React, { createContext, useState, useContext } from "react";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(null);  // Ensure `setToken` is defined
+  const [token, setToken] = useState(null);
 
   return (
-    <AuthContext.Provider value={{ token, setToken }}>  // Provide `setToken` in context
+    <AuthContext.Provider value={{ token, setToken }}>
       {children}
     </AuthContext.Provider>
   );
