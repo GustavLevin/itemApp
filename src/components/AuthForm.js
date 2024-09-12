@@ -1,13 +1,12 @@
-"use client";  // Ensure this component is client-side
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// import { useAuth } from "@/context/AuthContext";  // Assuming you have a context set up for authentication
+import { useAuth } from "@/context/AuthContext";  // Ensure correct path
 
 export default function AuthForm() {
   const router = useRouter();
-  const auth = useAuth();  // Access authentication context
-
+  const { setToken } = useAuth();  // Ensure `useAuth()` provides `setToken`
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -32,7 +31,7 @@ export default function AuthForm() {
         const data = await response.json();
         console.log("Token received:", data.token);
         localStorage.setItem("token", data.token);  // Store JWT in localStorage
-        auth.setToken(data.token);  // Set token in context
+        setToken(data.token);  // Set token in context
         router.push("/items");  // Redirect to items page
       } else {
         const errorMessage = await response.json();
