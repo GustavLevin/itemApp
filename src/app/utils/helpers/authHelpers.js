@@ -1,6 +1,6 @@
 import * as jose from "jose";
 
-const JWT_SECRET = process.env.JWT_SECRET || "SECRET";  // Use environment variable or fallback
+const JWT_SECRET = process.env.JWT_SECRET || "SECRET";  
 
 export async function signJWT(payload, secret = JWT_SECRET, options = {}) {
   if (!secret) {
@@ -14,7 +14,7 @@ export async function signJWT(payload, secret = JWT_SECRET, options = {}) {
       .setExpirationTime("7d")
       .sign(new TextEncoder().encode(secret));
 
-    console.log("Generated JWT Token:", token);  // Log the token
+    console.log("Generated JWT Token:", token); 
     return token;
   } catch (error) {
     console.error("Error signing JWT:", error);
@@ -33,7 +33,7 @@ export async function verifyJWT(token, secret = JWT_SECRET) {
       new TextEncoder().encode(secret)
     );
 
-    console.log("Verified JWT Payload:", payload);  // Log the payload
+    console.log("Verified JWT Payload:", payload); 
     return payload;
   } catch (error) {
     console.error("Error verifying JWT:", error);

@@ -12,18 +12,18 @@ export async function middleware(req) {
     try {
       const bearer = req.headers.get("Authorization") || "";
       console.log("Full Authorization Header:", bearer); 
-      const token = bearer.split(" ")?.[1];  // Extract the token correctly
+      const token = bearer.split(" ")?.[1];  
       console.log("Extracted Token:", token);
       if (!token) {
         throw new Error("No token submitted");
       }
 
-      jwtPayload = await verifyJWT(token);  // Verify the token
+      jwtPayload = await verifyJWT(token);  
       const headers = new Headers(req.headers);
-      headers.set("userId", JSON.stringify(jwtPayload.userId));  // Add userId to headers
-      return NextResponse.next({ headers: headers });  // Continue if valid
+      headers.set("userId", JSON.stringify(jwtPayload.userId)); 
+      return NextResponse.next({ headers: headers });  
     } catch (error) {
-      console.error("Token verification failed:", error);  // Log the error for debugging
+      console.error("Token verification failed:", error); 
       return NextResponse.json(
         { error: "Unauthorized request" },
         { status: 401 }
@@ -31,9 +31,9 @@ export async function middleware(req) {
     }
   }
 
-  return NextResponse.next();  // Continue for safe methods
+  return NextResponse.next(); 
 }
 
 export const config = {
-  matcher: ["/api/items/:path*"],  // Update matcher to include all paths under /api/items
+  matcher: ["/api/items/:path*"], 
 };

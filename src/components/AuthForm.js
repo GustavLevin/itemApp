@@ -30,9 +30,9 @@ export default function AuthForm() {
       if (response.ok) {
         const data = await response.json();
         console.log("Token received:", data.token);
-        localStorage.setItem("token", data.token);  // Store JWT in localStorage
-        setToken(data.token);  // Set token in context
-        router.push("/items");  // Redirect to items page
+        localStorage.setItem("token", data.token); 
+        setToken(data.token);  
+        router.push("/items"); 
       } else {
         const errorMessage = await response.json();
         setError(errorMessage.error || "Invalid login credentials");

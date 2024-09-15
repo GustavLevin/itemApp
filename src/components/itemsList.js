@@ -14,13 +14,13 @@ export default function ItemsList() {
 
   const fetchItems = async () => {
     try {
-      const token = localStorage.getItem("token");  // Get token from localStorage
+      const token = localStorage.getItem("token"); 
 
       const response = await fetch("/api/items", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,  // Include token in the Authorization header
+          Authorization: `Bearer ${token}`,  
         },
       });
 
@@ -55,7 +55,7 @@ export default function ItemsList() {
   };
 
   const handleEditItem = (item) => {
-    setEditItem(item); // Set the item to be edited
+    setEditItem(item); 
   };
 
   const handleUpdateItem = async (e) => {
@@ -100,7 +100,7 @@ export default function ItemsList() {
     <div className="items-list">
       <h2 className="items-title">Manage Your Items</h2>
 
-      {/* Add New Item Form */}
+      
       <form onSubmit={handleAddItem} className="item-form">
         <h3>Add New Item</h3>
         <input
@@ -133,12 +133,12 @@ export default function ItemsList() {
         <button type="submit" className="btn btn-primary">Add Item</button>
       </form>
 
-      {/* Display Items List */}
+      
       <ul className="items-container">
         {items.map((item) => (
           <li key={item.id} className="item-card">
             {editItem && editItem.id === item.id ? (
-              // Edit Form for an Item
+              
               <form onSubmit={handleUpdateItem} className="edit-form">
                 <input
                   type="text"

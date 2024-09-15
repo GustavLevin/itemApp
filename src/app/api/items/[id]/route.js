@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-// Get a specific item by ID
 export const GET = async (req, { params }) => {
   const { id } = params;
 
@@ -18,7 +17,6 @@ export const GET = async (req, { params }) => {
   }
 };
 
-// Update a specific item by ID
 export const PUT = async (req, { params }) => {
   const { id } = params;
 
@@ -40,7 +38,6 @@ export const PUT = async (req, { params }) => {
   }
 };
 
-// Delete a specific item by ID
 export const DELETE = async (req, { params }) => {
   const { id } = params;
 

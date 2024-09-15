@@ -23,7 +23,7 @@ export async function POST(req) {
   }
 
   try {
-    // Check if the user exists
+
     const user = await prisma.user.findUnique({
       where: { email: body.email },
     });
@@ -35,7 +35,7 @@ export async function POST(req) {
       );
     }
 
-    // Verify the password
+    
     const isPasswordValid = await bcrypt.compare(body.password, user.password);
 
     if (!isPasswordValid) {
@@ -45,10 +45,10 @@ export async function POST(req) {
       );
     }
 
-    // Generate JWT token for the user
+  
     const token = await signJWT({ userId: user.id });
 
-    // Respond with user information and token
+    
     return NextResponse.json({
       user: { id: user.id, email: user.email, name: user.name },
       token,

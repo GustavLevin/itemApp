@@ -1,31 +1,24 @@
-import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { verifyJWT } from "@/app/utils/helpers/authHelpers"; // Ensure the path is correct
+import { NextResponse } from "next/server"; 
+import { PrismaClient } from "@prisma/client";  
+import { verifyJWT } from "@/app/utils/helpers/authHelpers"; 
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient();  
+
 
 export const GET = async (req) => {
-  const url = new URL(req.url);
-  const search = url.searchParams.get("search");
-  let items = [];
-  if (search) {
-    items = await prisma.item.findMany({
-      where: {
-        category: {
-          contains: search,
-          mode: "insensitive",
-        },
-      },
-    });
-  } else {
-    items = await prisma.item.findMany();
+  try {
+   
+    const items = await prisma.item.findMany();
+    return NextResponse.json(items);
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Failed to fetch items" },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json(items);
 };
 
 export const POST = async (req) => {
-  // Extract the JWT from the Authorization header
   const token = req.headers.get("Authorization")?.replace("Bearer ", "").trim();
   
   if (!token) {
@@ -35,21 +28,21 @@ export const POST = async (req) => {
     );
   }
 
-  // Verify the JWT
   try {
-    await verifyJWT(token);
+    await verifyJWT(token);  
   } catch (error) {
+
     return NextResponse.json(
       { message: "Invalid token" },
       { status: 401 }
     );
   }
 
-  // Continue with item creation if token is valid
   let body;
   try {
-    body = await req.json();
+    body = await req.json();  
   } catch (error) {
+    
     return NextResponse.json(
       { message: "A valid JSON object has to be sent" },
       { status: 400 }
@@ -57,6 +50,7 @@ export const POST = async (req) => {
   }
 
   try {
+    
     const newItem = await prisma.item.create({
       data: {
         name: body.name,
@@ -65,9 +59,11 @@ export const POST = async (req) => {
         category: body.category,
       },
     });
+    
     return NextResponse.json(newItem, { status: 201 });
   } catch (error) {
-    console.log("ERROR:::", error.message);
+    console.log("ERROR:::", error.message);  
+    
     return NextResponse.json(
       { message: "Valid item data has to be sent" },
       { status: 400 }
