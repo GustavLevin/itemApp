@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/authContext";  // Ensure correct path
+import { useAuth } from "@/context/authContext";  
 
 export default function AuthForm() {
   const router = useRouter();
-  const { setToken } = useAuth();  // Ensure `useAuth()` provides `setToken`
+  const { setToken } = useAuth();  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -15,7 +15,7 @@ export default function AuthForm() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");  // Clear previous errors
+    setError("");  
 
     const url = isLogin ? "/api/auth/login" : "/api/auth/register";
     const body = isLogin ? { email, password } : { email, password, name };
